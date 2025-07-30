@@ -259,9 +259,12 @@ public class CommandHandler {
 
     @Executes("tooltip_display")
     @Permission("geckoedit.command.tooltip_display")
-    void tooltipDisplay(CommandSender sender, @Executor Player player, boolean hideCompletely) {
+    void tooltipDisplay(CommandSender sender, @Executor Player player) {
         ItemStack item = getItem(player);
         if (item == null) return;
+        TooltipDisplay existing = item.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+        boolean wasHidden = existing != null && existing.hideTooltip();
+        boolean hideCompletely = !wasHidden;
         item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hideTooltip(hideCompletely).build());
         player.sendRichMessage("<green>Set tooltip display to <yellow><state></yellow>.",
                 Placeholder.unparsed("state", hideCompletely ? "hidden" : "shown"));
@@ -297,6 +300,21 @@ public class CommandHandler {
         item.setData(DataComponentTypes.TOOLTIP_STYLE, key);
         player.sendRichMessage("<green>Set tooltip style to <key>.",
                 Placeholder.unparsed("key", key.asString()));
+    }
+
+    @Executes("unbreakable")
+    @Permission("geckoedit.command.unbreakable")
+    void unbreakable(CommandSender sender, @Executor Player player) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        boolean removed = item.hasData(DataComponentTypes.UNBREAKABLE);
+        if (removed) {
+            item.unsetData(DataComponentTypes.UNBREAKABLE);
+        } else {
+            item.setData(DataComponentTypes.UNBREAKABLE);
+        }
+        player.sendRichMessage("<green><state> unbreakability.",
+                Placeholder.unparsed("state", removed ? "Removed" : "Added"));
     }
 
 }
