@@ -3,6 +3,7 @@ package gecko10000.geckoitemedit;
 import gecko10000.geckolib.extensions.MMKt;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
+import io.papermc.paper.datacomponent.item.ItemEnchantments;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -219,6 +220,35 @@ public class CommandHandler {
         item.setData(DataComponentTypes.RARITY, ItemRarity.valueOf(rarity.toUpperCase()));
         player.sendRichMessage("<green>Set item rarity to <yellow><rarity></yellow>.",
                 Placeholder.unparsed("rarity", rarity));
+    }
+
+    @Executes("stored_enchantments")
+    @Permission("geckoedit.command.stored_enchantments")
+    void storedEnchantments(CommandSender sender, @Executor Player player, Enchantment enchantment, @IntArg(min = 0,
+            max = 255) int level) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        ItemEnchantments stored = item.getData(DataComponentTypes.STORED_ENCHANTMENTS);
+        if (stored == null) {
+            stored = ItemEnchantments.itemEnchantments().build();
+        }
+        if (level == 0) {
+            Integer prevLevel = stored.enchantments().remove(enchantment);
+            if (prevLevel == null || prevLevel == 0) {
+                player.sendRichMessage("<red>No enchantment to remove.");
+            } else {
+                player.sendRichMessage("<green>Removed <enchant>.",
+                        Placeholder.component("enchant", enchantment.displayName(prevLevel)));
+            }
+            return;
+        }
+        ItemEnchantments newStored = ItemEnchantments.itemEnchantments()
+                .addAll(stored.enchantments())
+                .add(enchantment, level)
+                .build();
+        item.setData(DataComponentTypes.STORED_ENCHANTMENTS, newStored);
+        player.sendRichMessage("<green>Added <enchant>.",
+                Placeholder.component("enchant", enchantment.displayName(level)));
     }
 
 }
