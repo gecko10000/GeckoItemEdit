@@ -6,6 +6,7 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
 import io.papermc.paper.datacomponent.item.ItemEnchantments;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
+import io.papermc.paper.datacomponent.item.UseCooldown;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -315,6 +316,36 @@ public class CommandHandler {
         }
         player.sendRichMessage("<green><state> unbreakability.",
                 Placeholder.unparsed("state", removed ? "Removed" : "Added"));
+    }
+
+    @Executes("use_cooldown")
+    @Permission("geckoedit.command.use_cooldown")
+    void useCooldown(CommandSender sender, @Executor Player player, float useCooldown) {
+        useCooldown(sender, player, useCooldown, null);
+    }
+
+    @Executes("use_cooldown")
+    @Permission("geckoedit.command.use_cooldown")
+    void useCooldown(CommandSender sender, @Executor Player player, float useCooldown,
+                     @StringArg(StringArgType.GREEDY) String cooldownGroup) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        UseCooldown.Builder builder = UseCooldown.useCooldown(useCooldown);
+        Key key = null;
+        if (cooldownGroup != null) {
+            key = parseKey(cooldownGroup, player);
+            if (key == null) return;
+            builder = builder.cooldownGroup(key);
+        }
+        item.setData(DataComponentTypes.USE_COOLDOWN, builder.build());
+        if (key != null) {
+            player.sendRichMessage("<green>Set cooldown of <seconds> seconds in group <group>.",
+                    Placeholder.unparsed("seconds", useCooldown + ""),
+                    Placeholder.unparsed("group", key.asString()));
+        } else {
+            player.sendRichMessage("<green>Set cooldown of <seconds> seconds.",
+                    Placeholder.unparsed("seconds", useCooldown + ""));
+        }
     }
 
 }
