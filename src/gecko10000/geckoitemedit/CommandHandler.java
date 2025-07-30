@@ -3,10 +3,7 @@ package gecko10000.geckoitemedit;
 import gecko10000.geckolib.extensions.MMKt;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.CustomModelData;
-import io.papermc.paper.datacomponent.item.ItemEnchantments;
-import io.papermc.paper.datacomponent.item.TooltipDisplay;
-import io.papermc.paper.datacomponent.item.UseCooldown;
+import io.papermc.paper.datacomponent.item.*;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -346,6 +343,19 @@ public class CommandHandler {
             player.sendRichMessage("<green>Set cooldown of <seconds> seconds.",
                     Placeholder.unparsed("seconds", useCooldown + ""));
         }
+    }
+
+    @Executes("use_remainder")
+    @Permission("geckoedit.command.use_remainder")
+    void useRemainder(CommandSender sender, @Executor Player player) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.isEmpty()) {
+            player.sendRichMessage("<red>Hold the remainder in your offhand.");
+            return;
+        }
+        item.setData(DataComponentTypes.USE_REMAINDER, UseRemainder.useRemainder(offhand));
     }
 
 }
