@@ -4,6 +4,8 @@ import gecko10000.geckolib.extensions.MMKt;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import net.kyori.adventure.key.InvalidKeyException;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.strokkur.commands.StringArgType;
@@ -74,7 +76,7 @@ public class CommandHandler {
         if (item == null) return;
         Component customName = MMKt.parseMM(mmString, true);
         item.setData(DataComponentTypes.CUSTOM_NAME, customName);
-        player.sendRichMessage("<green>Changed custom name to <name>.", Placeholder.component("name", customName));
+        player.sendRichMessage("<green>Set custom name to <name>.", Placeholder.component("name", customName));
     }
 
     @Executes("enchantment_glint_override")
@@ -108,6 +110,24 @@ public class CommandHandler {
                 Placeholder.component("enchant", enchantment.displayName(level)));
     }
 
+    @Executes("item_model")
+    @Permission("geckoedit.command.item_model")
+    void itemModel(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String modelKey) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        Key key;
+        try {
+            key = Key.key(modelKey);
+        } catch (InvalidKeyException ex) {
+            player.sendRichMessage("<red>Invalid key <yellow><key></yellow>.",
+                    Placeholder.unparsed("key", modelKey));
+            return;
+        }
+        item.setData(DataComponentTypes.ITEM_MODEL, key);
+        player.sendRichMessage("<green>Set item model to <key>.",
+                Placeholder.unparsed("key", key.asString()));
+    }
+
     @Executes("item_name")
     @Permission("geckoedit.command.item_name")
     void itemName(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String mmString) {
@@ -115,7 +135,7 @@ public class CommandHandler {
         if (item == null) return;
         Component itemName = MMKt.parseMM(mmString, true);
         item.setData(DataComponentTypes.ITEM_NAME, itemName);
-        player.sendRichMessage("<green>Changed item name to <name>.", Placeholder.component("name", itemName));
+        player.sendRichMessage("<green>Set item name to <name>.", Placeholder.component("name", itemName));
     }
 
     @Executes("lore")
