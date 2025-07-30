@@ -11,6 +11,7 @@ import net.strokkur.commands.annotations.*;
 import net.strokkur.commands.annotations.arguments.IntArg;
 import net.strokkur.commands.annotations.arguments.StringArg;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,14 +46,25 @@ public class CommandHandler {
         return item;
     }
 
-    @Executes("item_name")
-    @Permission("geckoedit.command.item_name")
-    void itemName(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String mmString) {
+    @Executes("custom_model_data")
+    @Permission("geckoedit.command.custom_model_data")
+    void setCustomModelData(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String data) {
         ItemStack item = getItem(player);
         if (item == null) return;
-        Component itemName = MMKt.parseMM(mmString, true);
-        item.setData(DataComponentTypes.ITEM_NAME, itemName);
-        player.sendRichMessage("<green>Changed item name to <name>.", Placeholder.component("name", itemName));
+        CustomModelData.Builder cmd = CustomModelData.customModelData();
+        List<String> strings = new ArrayList<>();
+        List<Float> floats = new ArrayList<>();
+        for (String split : data.split(" ")) {
+            try {
+                Float f = Float.parseFloat(split);
+                cmd.addFloat(f);
+            } catch (NumberFormatException ex) {
+                cmd.addString(split);
+            }
+        }
+        item.setData(DataComponentTypes.CUSTOM_MODEL_DATA, cmd.build());
+        player.sendRichMessage("<green>Set custom model data to <data>.",
+                Placeholder.unparsed("data", data));
     }
 
     @Executes("custom_name")
@@ -63,6 +75,47 @@ public class CommandHandler {
         Component customName = MMKt.parseMM(mmString, true);
         item.setData(DataComponentTypes.CUSTOM_NAME, customName);
         player.sendRichMessage("<green>Changed custom name to <name>.", Placeholder.component("name", customName));
+    }
+
+    @Executes("enchantment_glint_override")
+    @Permission("geckoedit.command.enchantment_glint_override")
+    void setEnchantmentGlintOverride(CommandSender sender, @Executor Player player, boolean enabled) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, enabled);
+        player.sendRichMessage("<green><yellow><state></yellow> enchantment glint override.",
+                Placeholder.unparsed("state", enabled ? "Enabled" : "Disabled"));
+    }
+
+    @Executes("enchantments")
+    @Permission("geckoedit.command.enchantments")
+    void addEnchantment(CommandSender sender, @Executor Player player, Enchantment enchantment,
+                        @IntArg(min = 0, max = 255) int level) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        if (level == 0) {
+            int previousLevel = item.removeEnchantment(enchantment);
+            if (previousLevel == 0) {
+                player.sendRichMessage("<red>No enchantment to remove.");
+            } else {
+                player.sendRichMessage("<green>Removed <enchant>.",
+                        Placeholder.component("enchant", enchantment.displayName(previousLevel)));
+            }
+            return;
+        }
+        item.addUnsafeEnchantment(enchantment, level);
+        player.sendRichMessage("<green>Added <enchant>.",
+                Placeholder.component("enchant", enchantment.displayName(level)));
+    }
+
+    @Executes("item_name")
+    @Permission("geckoedit.command.item_name")
+    void itemName(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String mmString) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        Component itemName = MMKt.parseMM(mmString, true);
+        item.setData(DataComponentTypes.ITEM_NAME, itemName);
+        player.sendRichMessage("<green>Changed item name to <name>.", Placeholder.component("name", itemName));
     }
 
     @Executes("lore")
@@ -114,37 +167,6 @@ public class CommandHandler {
                 "<green>Set max stack size to <yellow><max></yellow>.",
                 Placeholder.unparsed("max", maxSize + "")
         );
-    }
-
-    @Executes("custom_model_data")
-    @Permission("geckoedit.command.custom_model_data")
-    void setCustomModelData(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String data) {
-        ItemStack item = getItem(player);
-        if (item == null) return;
-        CustomModelData.Builder cmd = CustomModelData.customModelData();
-        List<String> strings = new ArrayList<>();
-        List<Float> floats = new ArrayList<>();
-        for (String split : data.split(" ")) {
-            try {
-                Float f = Float.parseFloat(split);
-                cmd.addFloat(f);
-            } catch (NumberFormatException ex) {
-                cmd.addString(split);
-            }
-        }
-        item.setData(DataComponentTypes.CUSTOM_MODEL_DATA, cmd.build());
-        player.sendRichMessage("<green>Set custom model data to <data>.",
-                Placeholder.unparsed("data", data));
-    }
-
-    @Executes("enchantment_glint_override")
-    @Permission("geckoedit.command.enchantment_glint_override")
-    void setEnchantmentGlintOverride(CommandSender sender, @Executor Player player, boolean enabled) {
-        ItemStack item = getItem(player);
-        if (item == null) return;
-        item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, enabled);
-        player.sendRichMessage("<green><yellow><state></yellow> enchantment glint override.",
-                Placeholder.unparsed("state", enabled ? "Enabled" : "Disabled"));
     }
 
 }
