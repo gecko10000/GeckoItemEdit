@@ -15,6 +15,7 @@ import net.strokkur.commands.annotations.arguments.StringArg;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -207,6 +208,17 @@ public class CommandHandler {
                 "<green>Set max stack size to <yellow><max></yellow>.",
                 Placeholder.unparsed("max", maxSize + "")
         );
+    }
+
+    @Executes("rarity")
+    @Permission("geckoedit.command.rarity")
+    void rarity(CommandSender sender, @Executor Player player,
+                @Literal({"common", "uncommon", "rare", "epic"}) String rarity) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        item.setData(DataComponentTypes.RARITY, ItemRarity.valueOf(rarity.toUpperCase()));
+        player.sendRichMessage("<green>Set item rarity to <yellow><rarity></yellow>.",
+                Placeholder.unparsed("rarity", rarity));
     }
 
 }
