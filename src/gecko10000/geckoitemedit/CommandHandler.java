@@ -50,7 +50,7 @@ public class CommandHandler {
 
     @Executes("custom_model_data")
     @Permission("geckoedit.command.custom_model_data")
-    void setCustomModelData(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String data) {
+    void customModelData(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String data) {
         ItemStack item = getItem(player);
         if (item == null) return;
         CustomModelData.Builder cmd = CustomModelData.customModelData();
@@ -79,9 +79,19 @@ public class CommandHandler {
         player.sendRichMessage("<green>Set custom name to <name>.", Placeholder.component("name", customName));
     }
 
+    @Executes("damage")
+    @Permission("geckoedit.command.damage")
+    void damage(CommandSender sender, @Executor Player player, @IntArg(min = 0) int damage) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        item.setData(DataComponentTypes.DAMAGE, damage);
+        player.sendRichMessage("<green>Set damage to <yellow><damage></yellow>.",
+                Placeholder.unparsed("damage", damage + ""));
+    }
+
     @Executes("enchantment_glint_override")
     @Permission("geckoedit.command.enchantment_glint_override")
-    void setEnchantmentGlintOverride(CommandSender sender, @Executor Player player, boolean enabled) {
+    void enchantmentGlintOverride(CommandSender sender, @Executor Player player, boolean enabled) {
         ItemStack item = getItem(player);
         if (item == null) return;
         item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, enabled);
@@ -91,8 +101,8 @@ public class CommandHandler {
 
     @Executes("enchantments")
     @Permission("geckoedit.command.enchantments")
-    void addEnchantment(CommandSender sender, @Executor Player player, Enchantment enchantment,
-                        @IntArg(min = 0, max = 255) int level) {
+    void enchantments(CommandSender sender, @Executor Player player, Enchantment enchantment,
+                      @IntArg(min = 0, max = 255) int level) {
         ItemStack item = getItem(player);
         if (item == null) return;
         if (level == 0) {
@@ -158,8 +168,8 @@ public class CommandHandler {
 
     @Executes("lore")
     @Permission("geckoedit.command.lore")
-    void addLore(CommandSender sender, @Executor Player player, @IntArg(min = 1, max = 256) int lineNumber,
-                 @StringArg(StringArgType.GREEDY) String mmString) {
+    void lore(CommandSender sender, @Executor Player player, @IntArg(min = 1, max = 256) int lineNumber,
+              @StringArg(StringArgType.GREEDY) String mmString) {
         ItemStack item = getItem(player);
         if (item == null) return;
         List<Component> lore = item.lore();
@@ -177,9 +187,19 @@ public class CommandHandler {
         );
     }
 
+    @Executes("max_damage")
+    @Permission("geckoedit.command.max_damage")
+    void maxDamage(CommandSender sender, @Executor Player player, @IntArg(min = 1) int maxDamage) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        item.setData(DataComponentTypes.MAX_DAMAGE, maxDamage);
+        player.sendRichMessage("<green>Set max damage to <yellow><max></yellow>.",
+                Placeholder.unparsed("max", maxDamage + ""));
+    }
+
     @Executes("max_stack_size")
     @Permission("geckoedit.command.max_stack_size")
-    void setMaxSize(CommandSender sender, @Executor Player player, @IntArg(min = 1, max = 99) int maxSize) {
+    void maxStackSize(CommandSender sender, @Executor Player player, @IntArg(min = 1, max = 99) int maxSize) {
         ItemStack item = getItem(player);
         if (item == null) return;
         item.setData(DataComponentTypes.MAX_STACK_SIZE, maxSize);
