@@ -21,11 +21,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 @Command("geckoedit")
 @Aliases("ge")
 @Permission("geckoedit.command")
@@ -70,7 +68,7 @@ public class CommandHandler {
         CustomModelData.Builder cmd = CustomModelData.customModelData();
         for (String split : data.split(" ")) {
             try {
-                Float f = Float.parseFloat(split);
+                float f = Float.parseFloat(split);
                 cmd.addFloat(f);
             } catch (NumberFormatException ex) {
                 cmd.addString(split);
@@ -236,8 +234,9 @@ public class CommandHandler {
         if (stored == null) {
             stored = ItemEnchantments.itemEnchantments().build();
         }
+        Map<Enchantment, Integer> levels = new HashMap<>(stored.enchantments());
         if (level == 0) {
-            Integer prevLevel = stored.enchantments().remove(enchantment);
+            Integer prevLevel = levels.remove(enchantment);
             if (prevLevel == null || prevLevel == 0) {
                 player.sendRichMessage("<red>No enchantment to remove.");
             } else {
@@ -247,7 +246,7 @@ public class CommandHandler {
             return;
         }
         ItemEnchantments newStored = ItemEnchantments.itemEnchantments()
-                .addAll(stored.enchantments())
+                .addAll(levels)
                 .add(enchantment, level)
                 .build();
         item.setData(DataComponentTypes.STORED_ENCHANTMENTS, newStored);
@@ -332,7 +331,7 @@ public class CommandHandler {
         if (cooldownGroup != null) {
             key = parseKey(cooldownGroup, player);
             if (key == null) return;
-            builder = builder.cooldownGroup(key);
+            builder.cooldownGroup(key);
         }
         item.setData(DataComponentTypes.USE_COOLDOWN, builder.build());
         if (key != null) {
