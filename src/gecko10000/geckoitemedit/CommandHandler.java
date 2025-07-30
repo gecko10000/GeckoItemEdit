@@ -54,14 +54,22 @@ public class CommandHandler {
         return item;
     }
 
+    private @Nullable Key parseKey(String input, Player player) {
+        try {
+            return Key.key(input);
+        } catch (InvalidKeyException ex) {
+            player.sendRichMessage("<red>Invalid key <yellow><key></yellow>.",
+                    Placeholder.unparsed("key", input));
+            return null;
+        }
+    }
+
     @Executes("custom_model_data")
     @Permission("geckoedit.command.custom_model_data")
     void customModelData(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String data) {
         ItemStack item = getItem(player);
         if (item == null) return;
         CustomModelData.Builder cmd = CustomModelData.customModelData();
-        List<String> strings = new ArrayList<>();
-        List<Float> floats = new ArrayList<>();
         for (String split : data.split(" ")) {
             try {
                 Float f = Float.parseFloat(split);
@@ -131,14 +139,8 @@ public class CommandHandler {
     void itemModel(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String modelKey) {
         ItemStack item = getItem(player);
         if (item == null) return;
-        Key key;
-        try {
-            key = Key.key(modelKey);
-        } catch (InvalidKeyException ex) {
-            player.sendRichMessage("<red>Invalid key <yellow><key></yellow>.",
-                    Placeholder.unparsed("key", modelKey));
-            return;
-        }
+        Key key = parseKey(modelKey, player);
+        if (key == null) return;
         item.setData(DataComponentTypes.ITEM_MODEL, key);
         player.sendRichMessage("<green>Set item model to <key>.",
                 Placeholder.unparsed("key", key.asString()));
@@ -283,6 +285,18 @@ public class CommandHandler {
         player.sendRichMessage("<green><action> <type>.",
                 Placeholder.unparsed("action", unhid ? "Unhid" : "Hid"),
                 Placeholder.unparsed("type", typeToHide.key().asString()));
+    }
+
+    @Executes("tooltip_style")
+    @Permission("geckoedit.command.tooltip_style")
+    void tooltipStyle(CommandSender sender, @Executor Player player, @StringArg(StringArgType.GREEDY) String styleKey) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        Key key = parseKey(styleKey, player);
+        if (key == null) return;
+        item.setData(DataComponentTypes.TOOLTIP_STYLE, key);
+        player.sendRichMessage("<green>Set tooltip style to <key>.",
+                Placeholder.unparsed("key", key.asString()));
     }
 
 }
