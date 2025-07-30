@@ -1,9 +1,11 @@
 package gecko10000.geckoitemedit;
 
 import gecko10000.geckolib.extensions.MMKt;
+import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
 import io.papermc.paper.datacomponent.item.ItemEnchantments;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
@@ -22,7 +24,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Command("geckoedit")
 @Aliases("ge")
@@ -249,6 +253,36 @@ public class CommandHandler {
         item.setData(DataComponentTypes.STORED_ENCHANTMENTS, newStored);
         player.sendRichMessage("<green>Added <enchant>.",
                 Placeholder.component("enchant", enchantment.displayName(level)));
+    }
+
+    @Executes("tooltip_display")
+    @Permission("geckoedit.command.tooltip_display")
+    void tooltipDisplay(CommandSender sender, @Executor Player player, boolean hideCompletely) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hideTooltip(hideCompletely).build());
+        player.sendRichMessage("<green>Set tooltip display to <yellow><state></yellow>.",
+                Placeholder.unparsed("state", hideCompletely ? "hidden" : "shown"));
+    }
+
+    @Executes("tooltip_display")
+    @Permission("geckoedit.command.tooltip_display")
+    void tooltipDisplay(CommandSender sender, @Executor Player player, DataComponentType typeToHide) {
+        ItemStack item = getItem(player);
+        if (item == null) return;
+        TooltipDisplay existing = item.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+        Set<DataComponentType> hidden = existing == null ? new HashSet<>() : existing.hiddenComponents();
+        boolean unhid = false;
+        if (!hidden.add(typeToHide)) {
+            unhid = true;
+            hidden.remove(typeToHide);
+        }
+        item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()
+                .hiddenComponents(hidden)
+                .build());
+        player.sendRichMessage("<green><action> <type>.",
+                Placeholder.unparsed("action", unhid ? "Unhid" : "Hid"),
+                Placeholder.unparsed("type", typeToHide.key().asString()));
     }
 
 }
