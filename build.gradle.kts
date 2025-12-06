@@ -32,10 +32,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     compileOnly("gecko10000.geckolib:GeckoLib:1.1")
-    compileOnly("net.strokkur", "strokk-commands-annotations", "1.2.4-SNAPSHOT")
-    annotationProcessor("net.strokkur", "strokk-commands-processor", "1.2.4-SNAPSHOT")
+    compileOnly("net.strokkur", "commands-annotations", "1.5.0")
+    annotationProcessor("net.strokkur", "commands-processor", "1.5.0")
 }
 
 java {
